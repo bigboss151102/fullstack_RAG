@@ -1,13 +1,22 @@
 [tool.poetry]
-name = "danang-trip-assisstant"
+name = "danang_trip_assisstant"
 version = "0.1.0"
 description = ""
-authors = ["hoangtrong <hoangcongtrong054@gmail.com>"]
+authors = ["Your Name <you@example.com>"]
 readme = "README.md"
+packages = [
+    { include = "app" },
+]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
+uvicorn = "^0.23.2"
+langserve = {extras = ["server"], version = ">=0.0.30"}
+pydantic = "<2"
 
+
+[tool.poetry.group.dev.dependencies]
+langchain-cli = ">=0.0.15"
 
 [build-system]
 requires = ["poetry-core"]
