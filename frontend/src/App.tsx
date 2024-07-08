@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { fetchEventSource } from "@microsoft/fetch-event-source";
+import { v4 as uuidv4 } from 'uuid';
+
 
 interface Message {
   message: string;
@@ -11,6 +13,13 @@ interface Message {
 function App() {
   const [inputValue, setInputValue] = useState("")
   const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const sessionIdRef = useRef<string>(uuidv4());
+
+  useEffect(() => {
+    sessionIdRef.current = uuidv4();
+  }, []);
+
 
   const setPartialMessage = (chunk: string, sources: string[] = []) => {
     setMessages(prevMessages => {
@@ -46,12 +55,18 @@ function App() {
 
     await fetchEventSource(`http://localhost:8000/rag/stream`, {
       method: 'POST',
+      openWhenHidden: true,
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         input: {
           question: message,
+        },
+        config: {
+          configurable: {
+            sessionId: sessionIdRef.current
+          }
         }
       }),
       onmessage(event) {
@@ -72,10 +87,52 @@ function App() {
     return source.split("/").pop() || "";
   }
 
+  const handleUploadFiles = async () => {
+    if (!selectedFiles) {
+      return;
+    }
+
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach((file: Blob) => {
+      formData.append('files', file);
+    });
+
+    // Example: Sending files to a backend endpoint
+    try {
+      const response = await fetch('http://localhost:8000/upload', {
+        method: 'POST',
+        body: formData, // No headers for multipart/form-data; fetch adds it automatically
+      });
+
+      if (response.ok) {
+        console.log('Upload successful');
+      } else {
+        console.error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    }
+  };
+
+  const loadAndProcessPDFs = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/load-and-process-pdfs', {
+        method: 'POST',
+      });
+      if (response.ok) {
+        console.log('PDFs loaded and processed successfully');
+      } else {
+        console.error('Failed to load and process PDFs');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <header className="bg-blue-100 text-gray-800 text-center p-4 shadow-sm">
-        <h1 className="text-3xl font-bold">Hệ thống tư vấn du lịch thành phố Đà Nẵng</h1>
+        Hệ thống tư vấn du lịch thành phố Đà Nẵng
       </header>
       <main className="flex-grow container mx-auto p-4 flex-col">
         <div className="flex-grow bg-white shadow overflow-hidden sm:rounded-lg">
@@ -118,6 +175,27 @@ function App() {
             >
               Send
             </button>
+            {/* Reordered elements */}
+            <div className="mt-2">
+              <input
+                type="file"
+                accept=".pdf"
+                multiple
+                onChange={(e) => setSelectedFiles(e.target.files)}
+              />
+              <button
+                className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded block"
+                onClick={handleUploadFiles}
+              >
+                Upload PDFs
+              </button>
+              <button
+                className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={loadAndProcessPDFs}
+              >
+                Load and Process PDFs
+              </button>
+            </div>
           </div>
         </div>
 
@@ -126,8 +204,9 @@ function App() {
         Footer message: copyright, etc
       </footer>
 
-    </div >
+    </div>
   );
+
 }
 
 export default App;
