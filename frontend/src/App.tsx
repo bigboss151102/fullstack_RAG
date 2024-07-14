@@ -11,6 +11,7 @@ interface Message {
 function App() {
   const [inputValue, setInputValue] = useState("")
   const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
   const setPartialMessage = (chunk: string, sources: string[] = []) => {
     setMessages(prevMessages => {
@@ -72,6 +73,47 @@ function App() {
     return source ? source.split("/").pop() || "" : "";
   }
 
+  const handleUploadFiles = async () => {
+    if (!selectedFiles) {
+      return;
+    }
+
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach((file: Blob) => {
+      formData.append('files', file);
+    });
+
+    try {
+      const response = await fetch('http://localhost:8000/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        console.log('Upload successful');
+      } else {
+        console.error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    }
+  };
+
+  const loadAndProcessPDFs = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/load-and-process-pdfs', {
+        method: 'POST',
+      });
+      if (response.ok) {
+        console.log('PDFs loaded and processed successfully');
+      } else {
+        console.error('Failed to load and process PDFs');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <header className="bg-blue-100 text-gray-800 text-center p-4 shadow-sm">
@@ -112,12 +154,33 @@ function App() {
               onChange={(e) => setInputValue(e.target.value)}
               value={inputValue}
             ></textarea>
-            <button
+           <button
               className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
               onClick={() => handleSendMessage(inputValue.trim())}
             >
               Send
             </button>
+            {/* Reordered elements */}
+            <div className="mt-2">
+              <input
+                type="file"
+                accept=".pdf"
+                multiple
+                onChange={(e) => setSelectedFiles(e.target.files)}
+              />
+              <button
+                className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded block"
+                onClick={handleUploadFiles}
+              >
+                Upload PDFs
+              </button>
+              <button
+                className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={loadAndProcessPDFs}
+              >
+                Load and Process PDFs
+              </button>
+            </div>
           </div>
         </div>
 
