@@ -1,79 +1,118 @@
-# danang_trip_assisstant
+## Table of Contents
+- [Description](#description)
+- [Design System](#design-system)
+- [Create Vector Database with PGVector](#vector-database)
+- [Installation Frontend](#installation-frontend)
+- [Run Application](#run-application)
+- [Contact](#contact)
 
-## Installation
+# Description
+This project implements a Chatbot using Retrieval-Augmented Generation (RAG) with FastAPI, and React.js. The backend, built with FastAPI, handles data retrieval and processing. The frontend, developed in React.js, provides an interactive user interface for seamless chatbot interactions.
 
-Install the LangChain CLI if you haven't yet
+# Design System
+![Desigin System](./design-system.jpg)
 
-```bash
-pip install -U langchain-cli
+# Installation Backend
+### Install PGVector
+
+Ensure [C++ support in Visual Studio](https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#download-and-install-the-tools) and [PostgreSQL](https://www.postgresql.org/download/windows/) are installed, and run:
+
+```cmd
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 ```
 
-## Adding packages
+Note: The exact path will vary depending on your Visual Studio version and edition
 
-```bash
-# adding packages from 
-# https://github.com/langchain-ai/langchain/tree/master/templates
-langchain app add $PROJECT_NAME
+Then use `nmake` to build:
 
-# adding custom GitHub repo packages
-langchain app add --repo $OWNER/$REPO
-# or with whole git string (supports other git providers):
-# langchain app add git+https://github.com/hwchase17/chain-of-verification
+```cmd
+set "PGROOT=C:\Program Files\PostgreQL\16"
+cd %TEMP%
+git clone --branch v0.7.2 https://github.com/pgvector/pgvector.git
+cd pgvector
+nmake /F Makefile.win
+nmake /F Makefile.win install
+```
+### Create Virtual Environment
+Then create new environment where contain nessessary packages to this project.
+Ensure you have Python 3.10+ installed.
+```cmd
+python -m venv .venv
+```
+Activate new enviroment
+```cmd
+.venv\Scripts\activate
+```
+Then, install the required dependencies using pip:
+```cmd
+pip install -r requirements.txt
+```
+### Notes
+You need to create a .env file to store essential keys for the project such as OPENAI_API_KEY, LANGCHAIN_API_KEY, SECRET_KEY,ALLOWED_HOSTS, APP_DEBUG,  and others.
 
-# with a custom api mount point (defaults to `/{package_name}`)
-langchain app add $PROJECT_NAME --api_path=/my/custom/path/rag
+# Create Vector Database with PGVector
+Move into the langchain-stream app directory and run command in your terminal:
+```cmd
+python rag_load_and_process.py
+```
+Then wait for the process to complete (it may take a few minutes) and check the database for the new table called "langchain_pg_embeding and langchain_pg_collection" in your PostgreSQL database.
+
+# Installation Frontend
+Ensure Node.js and npm are installed
+run
+```cmd
+node -v
+npm -v
+```
+if installed, you should see their version numbers. For example:
+```cmd
+v20.8.0
+10.1.0
+```
+### Create a React Application
+Generate a new React project:
+```cmd
+npm create vite@latest
+```
+Name the project frontend, select 'React' as the framework, and choose 'JavaScript' for the variant. Then, navigate into your new frontend directory:
+
+```cmd
+cd frontend
+```
+Install the required React packages:
+```cmd
+npm install
 ```
 
-Note: you remove packages by their api path
-
-```bash
-langchain app remove my/custom/path/rag
+### Test the Frontend
+Start the React development server:
+```cmd
+npm run dev
 ```
+Visit the URL shown in your terminal (usually http://localhost:5173/) to view your React app’s welcome page.
 
-## Setup LangSmith (Optional)
-LangSmith will help us trace, monitor and debug LangChain applications. 
-You can sign up for LangSmith [here](https://smith.langchain.com/). 
-If you don't have access, you can skip this section
-
-
-```shell
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=<your-api-key>
-export LANGCHAIN_PROJECT=<your-project>  # if not specified, defaults to "default"
+# Run Application
+All done! To run the application, start the Django server and the React development server
+In 2 separate terminals, run:
+```cmd
+uvicorn app.server:app --reload
 ```
-
-## Launch LangServe
-
-```bash
-langchain serve
+and in the frontend directory, run:
+```cmd
+cd frontend
+npm run dev
 ```
+Visit the URL shown in your terminal (usually http://localhost:5173/) to view the app.
 
-## Running in Docker
+# Contact
+For questions, contributions, or bug reports, please feel free to reach out:
 
-This project folder includes a Dockerfile that allows you to easily build and host your LangServe app.
+- Email: [hoangcongtrong02.dut@gmail.com](hoangcongtrong02.dut@gmail.com)
+- Linkedin: [https://www.linkedin.com/in/hoangtrong151102/](https://www.linkedin.com/in/hoangtrong151102/)
+- Instagram: [https://www.instagram.com/h.c.trong_02/](https://www.instagram.com/h.c.trong_02/)
 
-### Building the Image
+I appreciate your feedback and involvement!
 
-To build the image, you simply:
 
-```shell
-docker build . -t my-langserve-app
-```
 
-If you tag your image with something other than `my-langserve-app`,
-note it for use in the next step.
 
-### Running the Image Locally
-
-To run the image, you'll need to include any environment variables
-necessary for your application.
-
-In the below example, we inject the `OPENAI_API_KEY` environment
-variable with the value set in my local environment
-(`$OPENAI_API_KEY`)
-
-We also expose port 8080 with the `-p 8080:8080` option.
-
-```shell
-docker run -e OPENAI_API_KEY=$OPENAI_API_KEY -p 8080:8080 my-langserve-app
-```
