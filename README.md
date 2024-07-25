@@ -1,4 +1,5 @@
 ## Table of Contents
+- [Demo](#demo)
 - [Description](#description)
 - [Design System](#design-system)
 - [Create Vector Database with PGVector](#vector-database)
@@ -6,6 +7,8 @@
 - [Run Application](#run-application)
 - [Contact](#contact)
 
+# Demo
+![Demo](./chatbot.gif)
 # Description
 This project implements a Chatbot using Retrieval-Augmented Generation (RAG) with FastAPI, and React.js. The backend, built with FastAPI, handles data retrieval and processing. The frontend, developed in React.js, provides an interactive user interface for seamless chatbot interactions.
 
@@ -63,6 +66,7 @@ run
 ```cmd
 node -v
 npm -v
+npx -v
 ```
 if installed, you should see their version numbers. For example:
 ```cmd
@@ -70,29 +74,34 @@ v20.8.0
 10.1.0
 ```
 ### Create a React Application
-Generate a new React project:
+Let's use a react template for the frontend. In Terminal:
 ```cmd
-npm create vite@latest
+npx create-react-app frontend --template typescript
 ```
-Name the project frontend, select 'React' as the framework, and choose 'JavaScript' for the variant. Then, navigate into your new frontend directory:
-
+This will create a new folder called frontend
+Let's move into it:
 ```cmd
 cd frontend
 ```
-Install the required React packages:
+Now let's install some necessary modules there:
 ```cmd
-npm install
+npm install @microsoft/fetch-event-source
 ```
-
+```cmd
+npm install -D tailwindcss
+```
+```cmd
+npx tailwindcss init
+```
 ### Test the Frontend
 Start the React development server:
 ```cmd
-npm run dev
+npm start
 ```
-Visit the URL shown in your terminal (usually http://localhost:5173/) to view your React app’s welcome page.
+Visit the URL shown in your terminal (usually http://localhost:3000/) to view your React app’s welcome page.
 
 # Run Application
-All done! To run the application, start the Django server and the React development server
+All done! To run the application, start the FastAPI server and the React development server
 In 2 separate terminals, run:
 ```cmd
 uvicorn app.server:app --reload
@@ -100,9 +109,9 @@ uvicorn app.server:app --reload
 and in the frontend directory, run:
 ```cmd
 cd frontend
-npm run dev
+npm start
 ```
-Visit the URL shown in your terminal (usually http://localhost:5173/) to view the app.
+Visit the URL shown in your terminal (usually http://localhost:3000/) to view the app.
 
 # Contact
 For questions, contributions, or bug reports, please feel free to reach out:
