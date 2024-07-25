@@ -8,6 +8,7 @@ from app.rag_chain import final_chain
 import os
 import shutil
 import subprocess
+import sys
 
 app = FastAPI()
 
@@ -49,11 +50,16 @@ async def upload_files(files: list[UploadFile] = File(...)):
 @app.post("/load-and-process-pdfs")
 async def load_and_process_pdfs():
     try:
-        subprocess.run(
-            ["python", "E:/FILE of Trong/LLMs/retrieval_augmented_generation_project/danang_trip_assisstant/rag-data-loader/rag_load_and_process.py"], check=True)
-        return {"message": "PDFs loaded and processed successfully"}
+        # Sử dụng sys.executable để đảm bảo sử dụng Python interpreter của môi trường hiện tại
+        result = subprocess.run(
+            [sys.executable, "E:/FILE of Trong/LLMs/retrieval_augmented_generation_project/danang_trip_assisstant/rag-data-loader/rag_load_and_process.py"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        return {"message": "PDFs loaded and processed successfully", "output": result.stdout}
     except subprocess.CalledProcessError as e:
-        return {"error": "Failed to execute script"}
+        return {"error": "Failed to execute script", "details": e.stderr}
 
 
 # Edit this to add the chain you want to add

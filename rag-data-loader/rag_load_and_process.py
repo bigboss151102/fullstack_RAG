@@ -1,4 +1,6 @@
 import os
+import sys
+print(sys.path)
 from dotenv import load_dotenv
 from langchain_community.document_loaders import DirectoryLoader, UnstructuredPDFLoader
 from langchain_community.vectorstores.pgvector import PGVector
